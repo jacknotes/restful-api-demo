@@ -5,6 +5,7 @@ import (
 
 	"github.com/infraboard/mcube/logger"
 	"github.com/infraboard/mcube/logger/zap"
+	"github.com/jacknotes/restful-api-demo/conf"
 )
 
 var Service *impl = &impl{}
@@ -19,5 +20,11 @@ type impl struct {
 
 func (i *impl) Init() error {
 	i.log = zap.L().Named("Host")
+	//获取全局db单例连接
+	db, err := conf.C().MySQL.GetDB()
+	if err != nil {
+		return err
+	}
+	i.db = db
 	return nil
 }
