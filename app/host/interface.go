@@ -22,6 +22,10 @@ type QueryHostRequest struct {
 	PageNumber int
 }
 
+func (req *QueryHostRequest) Offset() int {
+	return (req.PageNumber - 1) * req.PageSize
+}
+
 // 查询主机详情 传入参数
 type DescribeHostRequest struct {
 	Id string

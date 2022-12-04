@@ -3,7 +3,9 @@ package impl
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
+	"github.com/infraboard/mcube/sqlbuilder"
 	"github.com/jacknotes/restful-api-demo/app/host"
 )
 
@@ -78,7 +80,59 @@ func (i *impl) CreateHost(ctx context.Context, ins *host.Host) (*host.Host, erro
 }
 
 func (i *impl) QueryHost(ctx context.Context, req *host.QueryHostRequest) (*host.Set, error) {
-	return nil, nil
+	// 新建一个sqlbuilder 查询对象，后面是语句
+	query := sqlbuilder.NewQuery(queryHostSQL).Order("create_at").Desc().Limit(int64(req.Offset()), uint(req.PageSize))
+
+	// 构建排序查询语句，并且会拼接成 id=?,name=?  的格式
+	sqlStr, args := query.BuildQuery()
+	i.log.Debugf("sql: %s, args: %s", sqlStr, args)
+	// sql语句分析
+	stmt, err := i.db.Prepare(sqlStr)
+	if err != nil {
+		return nil, fmt.Errorf("prepare order stmt query error, %s", err)
+	}
+	defer stmt.Close()
+	// 查询时传入填充问号的值，上面BuildQuery已经加入了id=?,name=? 格式
+	rows, err := stmt.Query(args...)
+	if err != nil {
+		return nil, fmt.Errorf("order stmt query error, %s", err)
+	}
+
+	// 初始化需要返回的对象
+	set := host.NewSet()
+	// 迭代查询表里的数据
+	for rows.Next() {
+		ins := host.NewDefaultHost()
+		// 扫描行数据到对应变量中
+		if err := rows.Scan(
+			&ins.Id, &ins.Vendor, &ins.Region, &ins.Zone, &ins.CreateAt, &ins.ExpireAt,
+			&ins.Category, &ins.Type, &ins.InstanceId, &ins.Name,
+			&ins.Description, &ins.Status, &ins.UpdateAt, &ins.SyncAt, &ins.SyncAccount,
+			&ins.PublicIP, &ins.PrivateIP, &ins.PayType, &ins.ResourceHash, &ins.DescribeHash,
+			&ins.Id, &ins.CPU,
+			&ins.Memory, &ins.GPUAmount, &ins.GPUSpec, &ins.OSType, &ins.OSName,
+			&ins.SerialNumber, &ins.ImageID, &ins.InternetMaxBandwidthOut, &ins.InternetMaxBandwidthIn,
+			&ins.KeyPairName, &ins.SecurityGroups,
+		); err != nil {
+			return nil, err
+		}
+		set.Add(ins)
+	}
+
+	// Count 查询总数量
+	countStr, countArgs := query.BuildCount()
+	countStmt, err := i.db.Prepare(countStr)
+	if err != nil {
+		return nil, fmt.Errorf("prepare count stmt query error, %s", err)
+	}
+	defer countStmt.Close()
+
+	// 查询出来的值赋值给&set.Total
+	if err := countStmt.QueryRow(countArgs...).Scan(&set.Total); err != nil {
+		return nil, fmt.Errorf("count stmt query error, %s", err)
+	}
+
+	return set, nil
 }
 
 func (i *impl) DescribeHost(ctx context.Context, req *host.DescribeHostRequest) (*host.Host, error) {

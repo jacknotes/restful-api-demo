@@ -7,6 +7,8 @@ import (
 	"sync"
 	"time"
 
+	// 引入mysql驱动
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/infraboard/mcube/logger/zap"
 )
 
@@ -52,6 +54,10 @@ type app struct {
 	Port string `toml:"port"`
 	// 比较敏感的数据，入库的是加密后的内容，加密的秘钥就是该配置
 	Key string `toml:"key"`
+}
+
+func (a *app) Addr() string {
+	return fmt.Sprintf("%s:%s", a.Host, a.Port)
 }
 
 func NewDefaultApp() *app {

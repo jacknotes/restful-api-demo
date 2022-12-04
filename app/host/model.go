@@ -17,6 +17,13 @@ type Host struct {
 	*Describe
 }
 
+func NewDefaultHost() *Host {
+	return &Host{
+		Resource: &Resource{},
+		Describe: &Describe{},
+	}
+}
+
 func (h *Host) Validate() error {
 	return validate.Struct(h)
 }
@@ -75,4 +82,15 @@ type Describe struct {
 type Set struct {
 	Total int64
 	Items []*Host
+}
+
+func NewSet() *Set {
+	return &Set{
+		// 初始化切片，否则会加对象加不进去的
+		Items: []*Host{},
+	}
+}
+
+func (s *Set) Add(item *Host) {
+	s.Items = append(s.Items, item)
 }
