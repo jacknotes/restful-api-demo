@@ -54,7 +54,7 @@ func NewHTTPService() *HTTPService {
 func (s *HTTPService) Start() error {
 	// 装置子服务路由
 
-	hostAPI.API.Init()
+	hostAPI.API.Init() //此时初始化读取的h.host = app.Host = impl.Service
 	hostAPI.API.Registry(s.r)
 
 	// 启动 HTTP服务

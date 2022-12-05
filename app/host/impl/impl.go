@@ -8,6 +8,7 @@ import (
 	"github.com/jacknotes/restful-api-demo/conf"
 )
 
+// 暴露底层服务给HTTP层
 var Service *impl = &impl{}
 
 type impl struct {

@@ -40,7 +40,7 @@ var startCmd = &cobra.Command{
 		if err := impl.Service.Init(); err != nil {
 			return err
 		}
-		// 把服务实例注册给IOC层
+		// 把服务实例注册给IOC层，如果有多个不同服务实例实现，可以在这里解耦
 		app.Host = impl.Service
 
 		// 启动服务后，需要处理的事件
@@ -50,7 +50,7 @@ var startCmd = &cobra.Command{
 		// 创建服务对象
 		srv := NewService(conf.C())
 
-		// 等待程序退出
+		// 等待程序退出，启动协程处理
 		go srv.waitSign(ch)
 
 		// 启动服务
@@ -63,7 +63,7 @@ var startCmd = &cobra.Command{
 // 需要整体配置，可能启动很多模块：http, grpc, crontab
 type Service struct {
 	conf *conf.Config
-	http *protocol.HTTPService
+	http *protocol.HTTPService // protocol层接口
 	log  logger.Logger
 }
 
@@ -81,11 +81,11 @@ func (s *Service) Start() error {
 
 // 当用户手动终止程序的时候，需要完成处理
 func (s *Service) waitSign(sign chan os.Signal) {
-	for sg := range sign {
-		switch v := sg.(type) { //v的type是chan,没有使用case chan:，  后面使用v.String()时是取值，并不是取类型
+	for sg := range sign { // 如果未接收到通道数据则会一直阻塞
+		switch v := sg.(type) { //v的type是os.Signal
 		default:
 			//资源整理
-			s.log.Infof("receive signal '%v', start graceful shutdown", v.String()) //取出v的值
+			s.log.Infof("receive signal '%v', start graceful shutdown", v.String())
 			if err := s.http.Stop(); err != nil {
 				s.log.Errorf("graceful shutdown err: %s, force exit", err)
 			}
