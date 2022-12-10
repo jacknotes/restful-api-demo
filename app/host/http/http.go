@@ -30,4 +30,9 @@ func (h *handler) Init() {
 func (h *handler) Registry(r *httprouter.Router) {
 	r.POST("/hosts", h.CreateHost)
 	r.GET("/hosts", h.QueryHost)
+	// restful API格式，路径匹配，路径参数，例如: /hosts/11001
+	r.GET("/hosts/:id", h.DescribeHost)
+	r.PUT("/hosts/:id", h.UpdateHost)
+	r.PATCH("/hosts/:id", h.PatchHost)
+	r.DELETE("/hosts/:id", h.DeleteHost)
 }

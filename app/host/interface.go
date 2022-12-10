@@ -20,10 +20,17 @@ type Service interface {
 type QueryHostRequest struct {
 	PageSize   int
 	PageNumber int
+	Keywords   string
 }
 
 func (req *QueryHostRequest) Offset() int {
 	return (req.PageNumber - 1) * req.PageSize
+}
+
+func NewDescribeHostRequestWithID(id string) *DescribeHostRequest {
+	return &DescribeHostRequest{
+		Id: id,
+	}
 }
 
 // 查询主机详情 传入参数
@@ -31,9 +38,34 @@ type DescribeHostRequest struct {
 	Id string
 }
 
+const (
+	PUT UpdateMode = iota
+	PATCH
+)
+
+type UpdateMode int
+
+func NewPatchUpdateHostRequest() *UpdateHostRequest {
+	return &UpdateHostRequest{
+		UpdateMode: PATCH,
+		Resource:   &Resource{},
+		Describe:   &Describe{},
+	}
+}
+
+func NewPutUpdateHostRequest() *UpdateHostRequest {
+	return &UpdateHostRequest{
+		UpdateMode: PUT,
+		Resource:   &Resource{},
+		Describe:   &Describe{},
+	}
+}
+
 // 修改主机信息 传入参数
 type UpdateHostRequest struct {
-	Id string
+	UpdateMode
+	*Resource
+	*Describe
 }
 
 // 删除主机 传入参数

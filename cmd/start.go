@@ -43,7 +43,7 @@ var startCmd = &cobra.Command{
 		// 把服务实例注册给IOC层，如果有多个不同服务实例实现，可以在这里解耦
 		app.Host = impl.Service
 
-		// 启动服务后，需要处理的事件
+		// 启动服务后，需要处理的事件，没有做信号区分，以下4种信号我都认为需要致使中断服务的
 		ch := make(chan os.Signal, 1)
 		signal.Notify(ch, syscall.SIGTERM, syscall.SIGINT, syscall.SIGHUP, syscall.SIGQUIT)
 

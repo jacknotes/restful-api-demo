@@ -7,8 +7,10 @@ require (
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/go-playground/validator/v10 v10.10.0
 	github.com/go-sql-driver/mysql v1.7.0
+	github.com/imdario/mergo v0.3.13
 	github.com/infraboard/mcube v1.7.9
 	github.com/julienschmidt/httprouter v1.3.0
+	github.com/rs/xid v1.3.0
 	github.com/spf13/cobra v1.3.0
 )
 

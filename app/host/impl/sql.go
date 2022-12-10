@@ -14,4 +14,12 @@ const (
 	) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);`
 
 	queryHostSQL = `SELECT * FROM resource as r LEFT JOIN host h ON r.id=h.resource_id`
+
+	updateResourceSQL = `UPDATE resource SET vendor=?,region=?,zone=?,expire_at=?,create_at=?,update_at=?,name=?,description=? WHERE id=?`
+
+	updateHostSQL = `UPDATE host SET cpu=?,memory=? WHERE resource_id=?`
+
+	deleteResourceSQL = `DELETE FROM resource WHERE id = ?`
+
+	deleteHostSQL = `DELETE FROM host WHERE resource_id = ?`
 )

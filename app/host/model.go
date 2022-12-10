@@ -1,7 +1,10 @@
 package host
 
 import (
+	"time"
+
 	"github.com/go-playground/validator/v10"
+	"github.com/imdario/mergo"
 )
 
 var (
@@ -11,21 +14,49 @@ var (
 // 为了后期做资源解锁分两张表存储，<ip> ---> Host, IP, SLB, Redis, Mysql
 type Host struct {
 	// hash字段，在两个表插入数据时，当只需要插入一个表，另外一个表不需要插入，为了不插入另外一个表面做的hash校验
-	ResourceHash string //         `json:"resource_hash"`
-	DescribeHash string //        `json:"describe_hash"`
+	ResourceHash string `json:"resource_hash"`
+	DescribeHash string `json:"describe_hash"`
 	*Resource
 	*Describe
 }
 
 func NewDefaultHost() *Host {
 	return &Host{
-		Resource: &Resource{},
+		Resource: &Resource{
+			CreateAt: time.Second.Milliseconds(),
+		},
 		Describe: &Describe{},
 	}
 }
 
 func (h *Host) Validate() error {
 	return validate.Struct(h)
+}
+
+func (h *Host) Patch(res *Resource, desc *Describe) error {
+	if res != nil {
+		// 合并，patch方法常用，将res的值覆盖h.Resource的值，其余值保留
+		err := mergo.MergeWithOverwrite(h.Resource, res)
+		if err != nil {
+			return err
+		}
+	}
+
+	if desc != nil {
+		err := mergo.MergeWithOverwrite(h.Describe, desc)
+		if err != nil {
+			return err
+		}
+	}
+	h.UpdateAt = time.Now().UnixMilli()
+	return nil
+}
+
+// go 1.17允许获取毫秒
+func (h *Host) Update(res *Resource, desc *Describe) {
+	h.Resource = res
+	h.Describe = desc
+	h.UpdateAt = time.Now().UnixMilli()
 }
 
 type Vendor int
@@ -38,14 +69,14 @@ const (
 
 // 主机元数据信息
 type Resource struct {
-	Id     string `json:"id" validate:"required"`     // 全局唯一Id
-	Vendor Vendor `json:"vendor" validate:"required"` // 厂商
-	Region string `json:"region" validate:"required"` // 地域
-	Zone   string `json:"zone"`                       // 区域
+	Id     string `json:"id" `     // 全局唯一Id
+	Vendor Vendor `json:"vendor"`  // 厂商
+	Region string `json:"region" ` // 地域
+	Zone   string `json:"zone"`    // 区域
 	// 使用的13位时间戳
 	// 为什么不用数据库Datetime，如果使用数据库的时间，数据库会默认加上时区
 	// 后端使用时间戳，不加时区，都由前端加上时区进行展示
-	CreateAt    int64             `json:"create_at" validate:"required"`  // 创建时间
+	CreateAt    int64             `json:"create_at"`                      // 创建时间
 	ExpireAt    int64             `json:"expire_at"`                      // 过期时间
 	Category    string            `json:"category"`                       // 种类
 	Type        string            `json:"type"`                           // 规格
@@ -64,6 +95,7 @@ type Resource struct {
 
 // 主机具体信息
 type Describe struct {
+	ResourceID              string `json:"resource_id"`                //资源ID
 	CPU                     int    `json:"cpu" validate:"required"`    // 核数
 	Memory                  int    `json:"memory" validate:"required"` // 内存
 	GPUAmount               int    `json:"gpu_amount"`                 // GPU数量
@@ -80,8 +112,8 @@ type Describe struct {
 
 // 查询主机列表信息 返回参数
 type Set struct {
-	Total int64
-	Items []*Host
+	Total int64   `json:"total"`
+	Items []*Host `json:"items"`
 }
 
 func NewSet() *Set {
