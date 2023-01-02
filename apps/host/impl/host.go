@@ -7,7 +7,7 @@ import (
 
 	"github.com/infraboard/mcube/exception"
 	"github.com/infraboard/mcube/sqlbuilder"
-	"github.com/jacknotes/restful-api-demo/app/host"
+	"github.com/jacknotes/restful-api-demo/apps/host"
 	"github.com/rs/xid"
 )
 

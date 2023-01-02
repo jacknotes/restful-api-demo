@@ -3,8 +3,8 @@ package http
 import (
 	"github.com/infraboard/mcube/logger"
 	"github.com/infraboard/mcube/logger/zap"
-	"github.com/jacknotes/restful-api-demo/app"
-	"github.com/jacknotes/restful-api-demo/app/host"
+	app "github.com/jacknotes/restful-api-demo/apps"
+	"github.com/jacknotes/restful-api-demo/apps/host"
 	"github.com/julienschmidt/httprouter"
 )
 

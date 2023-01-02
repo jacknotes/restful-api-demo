@@ -6,7 +6,7 @@ import (
 
 	"github.com/infraboard/mcube/http/request"
 	"github.com/infraboard/mcube/http/response"
-	"github.com/jacknotes/restful-api-demo/app/host"
+	"github.com/jacknotes/restful-api-demo/apps/host"
 	"github.com/julienschmidt/httprouter"
 )
 

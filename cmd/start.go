@@ -9,8 +9,8 @@ import (
 
 	"github.com/infraboard/mcube/logger"
 	"github.com/infraboard/mcube/logger/zap"
-	"github.com/jacknotes/restful-api-demo/app"
-	"github.com/jacknotes/restful-api-demo/app/host/impl"
+	app "github.com/jacknotes/restful-api-demo/apps"
+	"github.com/jacknotes/restful-api-demo/apps/host/impl"
 	"github.com/jacknotes/restful-api-demo/conf"
 	"github.com/jacknotes/restful-api-demo/protocol"
 	"github.com/spf13/cobra"

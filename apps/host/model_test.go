@@ -3,7 +3,7 @@ package host_test
 import (
 	"testing"
 
-	"github.com/jacknotes/restful-api-demo/app/host"
+	"github.com/jacknotes/restful-api-demo/apps/host"
 	"github.com/stretchr/testify/assert"
 )
 

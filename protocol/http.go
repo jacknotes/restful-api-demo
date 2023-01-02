@@ -8,7 +8,7 @@ import (
 
 	"github.com/infraboard/mcube/logger"
 	"github.com/infraboard/mcube/logger/zap"
-	hostAPI "github.com/jacknotes/restful-api-demo/app/host/http"
+	hostAPI "github.com/jacknotes/restful-api-demo/apps/host/http"
 	"github.com/jacknotes/restful-api-demo/conf"
 	"github.com/julienschmidt/httprouter"
 )
