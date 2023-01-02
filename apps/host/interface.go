@@ -1,5 +1,12 @@
 package host
 
+func NewQueryHostRequest() *QueryHostRequest {
+	return &QueryHostRequest{
+		PageSize:   20,
+		PageNumber: 1,
+	}
+}
+
 func (req *QueryHostRequest) Offset() int64 {
 	return (req.PageNumber - 1) * req.PageSize
 }

@@ -64,6 +64,7 @@ var startCmd = &cobra.Command{
 type Service struct {
 	conf *conf.Config
 	http *protocol.HTTPService // protocol层接口
+	grpc *protocol.GrpcService // grpc层接口
 	log  logger.Logger
 }
 
@@ -71,11 +72,13 @@ func NewService(conf *conf.Config) *Service {
 	return &Service{
 		conf: conf,
 		http: protocol.NewHTTPService(),
+		grpc: protocol.NewGrpcService(),
 		log:  zap.L().Named("Service"),
 	}
 }
 
 func (s *Service) Start() error {
+	go s.grpc.Start()
 	return s.http.Start()
 }
 
@@ -84,6 +87,8 @@ func (s *Service) waitSign(sign chan os.Signal) {
 	for sg := range sign { // 如果未接收到通道数据则会一直阻塞
 		switch v := sg.(type) { //v的type是os.Signal
 		default:
+			s.grpc.Stop()
+
 			//资源整理
 			s.log.Infof("receive signal '%v', start graceful shutdown", v.String())
 			if err := s.http.Stop(); err != nil {

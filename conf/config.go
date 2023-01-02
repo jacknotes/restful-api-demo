@@ -52,6 +52,10 @@ type app struct {
 	Host string `toml:"host"`
 	// 8080, 8050
 	Port string `toml:"port"`
+	// 127.0.0.1
+	GrpcHost string `toml:"grpc_host"`
+	// 18050
+	GrpcPort string `toml:"grpc_port"`
 	// 比较敏感的数据，入库的是加密后的内容，加密的秘钥就是该配置
 	Key string `toml:"key"`
 }
@@ -60,12 +64,18 @@ func (a *app) Addr() string {
 	return fmt.Sprintf("%s:%s", a.Host, a.Port)
 }
 
+func (a *app) GrpcAddr() string {
+	return fmt.Sprintf("%s:%s", a.GrpcHost, a.GrpcPort)
+}
+
 func NewDefaultApp() *app {
 	return &app{
-		Name: "restful-api",
-		Host: "127.0.0.1",
-		Port: "8050",
-		Key:  "default app key",
+		Name:     "restful-api",
+		Host:     "127.0.0.1",
+		Port:     "8050",
+		GrpcHost: "127.0.0.1",
+		GrpcPort: "18050",
+		Key:      "default app key",
 	}
 }
 
