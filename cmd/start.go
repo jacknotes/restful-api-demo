@@ -7,13 +7,16 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/infraboard/mcube/app"
 	"github.com/infraboard/mcube/logger"
 	"github.com/infraboard/mcube/logger/zap"
-	app "github.com/jacknotes/restful-api-demo/apps"
-	"github.com/jacknotes/restful-api-demo/apps/host/impl"
 	"github.com/jacknotes/restful-api-demo/conf"
 	"github.com/jacknotes/restful-api-demo/protocol"
 	"github.com/spf13/cobra"
+
+	// 注册所有的app模块
+	// 所有的grpc app 都已经在app grpcApps map里面了
+	_ "github.com/jacknotes/restful-api-demo/apps/all"
 )
 
 var (
@@ -36,12 +39,17 @@ var startCmd = &cobra.Command{
 			return err
 		}
 
-		// 初始化服务层，IOC初始化
-		if err := impl.Service.Init(); err != nil {
+		// 初始化所有已经注册好的app
+		if err := app.InitAllApp(); err != nil {
 			return err
 		}
-		// 把服务实例注册给IOC层，如果有多个不同服务实例实现，可以在这里解耦
-		app.Host = impl.Service
+
+		// // 初始化服务层，IOC初始化
+		// if err := impl.Service.Init(); err != nil {
+		// 	return err
+		// }
+		// // 把服务实例注册给IOC层，如果有多个不同服务实例实现，可以在这里解耦
+		// app.Host = impl.Service
 
 		// 启动服务后，需要处理的事件，没有做信号区分，以下4种信号我都认为需要致使中断服务的
 		ch := make(chan os.Signal, 1)
@@ -79,6 +87,9 @@ func NewService(conf *conf.Config) *Service {
 
 func (s *Service) Start() error {
 	go s.grpc.Start()
+
+	s.log.Infof("loaded grpc apps: %s", app.LoadedGrpcApp())
+
 	return s.http.Start()
 }
 

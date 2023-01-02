@@ -1,9 +1,10 @@
 package http
 
 import (
+	"github.com/infraboard/mcube/app"
 	"github.com/infraboard/mcube/logger"
 	"github.com/infraboard/mcube/logger/zap"
-	app "github.com/jacknotes/restful-api-demo/apps"
+
 	"github.com/jacknotes/restful-api-demo/apps/host"
 	"github.com/julienschmidt/httprouter"
 )
@@ -20,10 +21,14 @@ type handler struct {
 func (h *handler) Init() {
 	// 创建日志子系统"HOST API"
 	h.log = zap.L().Named("HOST API")
-	if app.Host == nil { // 当start未成功传入ipml.Service给app.Host时，将会panic
-		panic("dependence host service is nil")
-	}
-	h.host = app.Host
+
+	// 获取grpc的对象，断言类型为host.ServiceServer
+	h.host = app.GetGrpcApp(host.AppName).(host.ServiceServer)
+
+}
+
+func (h *handler) Name() string {
+	return host.AppName
 }
 
 // 把handler实现的方法 注册给主路由

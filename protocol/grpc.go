@@ -3,10 +3,9 @@ package protocol
 import (
 	"net"
 
+	"github.com/infraboard/mcube/app"
 	"github.com/infraboard/mcube/logger"
 	"github.com/infraboard/mcube/logger/zap"
-	app "github.com/jacknotes/restful-api-demo/apps"
-	"github.com/jacknotes/restful-api-demo/apps/host"
 	"github.com/jacknotes/restful-api-demo/conf"
 	"google.golang.org/grpc"
 )
@@ -28,7 +27,8 @@ func NewGrpcService() *GrpcService {
 
 func (s *GrpcService) Start() {
 	// 加载服务
-	host.RegisterServiceServer(s.server, app.Host)
+	// host.RegisterServiceServer(s.server, app.Host)
+	app.LoadGrpcApp(s.server)
 
 	lis, err := net.Listen("tcp", conf.C().App.GrpcAddr())
 	if err != nil {

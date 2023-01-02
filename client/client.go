@@ -14,6 +14,7 @@ func NewClient(conf *Config) (*Client, error) {
 	conn, err := grpc.Dial(
 		conf.Addr,
 		grpc.WithInsecure(),
+		// 传入的conf.Authentication需要实现credentials.PerRPCCredentials接口
 		grpc.WithPerRPCCredentials(conf.Authentication),
 	)
 	if err != nil {
