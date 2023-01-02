@@ -40,6 +40,14 @@ mac: dep ## Build the binary file
 freeBSD: dep ## Build the binary file
 	@GOOS=freebsd GOARCH=amd64 go build -ldflags "-s -w" -o ${PROJECT_NAME} $(MAIN_FILE)
 
+install: dep  ## install grpc gen tools
+	@go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+	@go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+	@go install github.com/favadi/protoc-go-inject-tag@latest
+
+gen: ## generate code
+	@protoc -I=. -I='/c/Program Files/Git/usr/local/include' --go_out=. --go_opt=module=${PKG} --go-grpc_out=. --go-grpc_opt=module=${PKG} apps/*/pb/*.proto
+
 run: ## Run Develop server
 	@go run $(MAIN_FILE) start -f ${PKG_CONFIG}
 

@@ -1,0 +1,151 @@
+syntax = "proto3";
+
+package demo;
+option go_package="github.com/jacknotes/restful-api-demo/apps/host";    // go mod名称加protobuf路径，生成到这里面来
+
+
+enum Vendor {
+    ALI_CLOUD = 0;
+    TX_CLOUD = 1;
+    HW_CLOUD = 2;
+}
+
+enum UpdateMode {
+    PUT = 0;
+    PATCH = 1;
+}
+
+service Service {
+    // 录入主机信息
+    rpc CreateHost(Host) returns (Host);    // 自动会加入context和error
+    // 查询主机列表信息
+    rpc QueryHost(QueryHostRequest) returns (Set);
+    // 查询主机详情
+    rpc DescribeHost(DescribeHostRequest) returns (Host);
+    // 修改主机信息
+    rpc UpdateHost(UpdateHostRequest) returns (Host);
+    // 删除主机， 为了兼容GRPC和 delete event需要返回Host
+    rpc DeleteHost(DeleteHostRequest) returns (Host);
+}
+
+
+
+message QueryHostRequest {
+    int64 page_size = 1;
+    int64 page_number = 2;
+    string keywords = 3;
+}
+
+message DescribeHostRequest {
+    string id = 1;
+}
+
+message UpdateHostRequest {
+    // @gotags: json:"update_mode"
+    UpdateMode update_mode = 1;
+    // @gotags: json:"resource"
+    Resource resource = 2;
+    // @gotags: json:"describe"
+    Describe describe = 3;
+}
+
+message DeleteHostRequest {
+    string id = 1;
+}
+
+
+// protobuf不能有结构体嵌套
+message Host {
+    // @gotags: json:"resource_hash"
+    string resource_hash = 1;
+    // @gotags: json:"describe_hash"
+    string describe_hash = 2;
+    // @gotags: json:"resource"
+    Resource resource = 3;
+    // @gotags: json:"describe"
+    Describe describe = 4;
+}
+
+message Resource {
+    // @gotags: json:"id"
+    string id = 1;      // 全局唯一Id
+    // @gotags: json:"vendor""
+    Vendor vendor = 2;  // 厂商
+    // @gotags: json:"region" validate:"required"
+    string region = 3;  // 地域
+    // @gotags: json:"zone"
+    string zone = 4;    // 区域
+    // 使用的13位时间戳
+	// 为什么不用数据库Datetime，如果使用数据库的时间，数据库会默认加上时区
+	// 后端使用时间戳，不加时区，都由前端加上时区进行展示
+    // @gotags: json:"create_at"
+    int64 create_at = 5;    // 创建时间
+    // @gotags: json:"expire_at"
+    int64 expire_at = 6;    // 过期时间
+    // @gotags: json:"category"
+    string category = 7;    // 种类
+    // @gotags: json:"type"
+    string type = 8;        // 规格
+    // @gotags: json:"instance_id"
+    string instance_id = 9; // 实例ID
+    // @gotags: json:"name" validate:"required"
+    string name = 10;           // 名称
+    // @gotags: json:"description"
+    string description = 11;    // 描述
+    // @gotags: json:"status" validate:"required"
+    string status = 12;         // 服务商中的状态
+    // @gotags: json:"tags"
+    map<string,string> tags = 13;   // 标签
+    // @gotags: json:"update_at"
+    int64 update_at = 14;           // 更新时间
+    // @gotags: json:"sync_at"
+    int64 sync_at = 15;             // 同步时间
+    // @gotags: json:"sync_accout"
+    string sync_account = 16;           // 同步的账号
+    // @gotags: json:"public_ip"
+    string public_ip  = 17;              // 公网IP
+    // @gotags: json:"private_ip" validate:"required"
+    string private_ip = 18;                   // 内网IP
+    // @gotags: json:"pay_type"
+    string pay_type = 19;                  // 实例付费方式
+}
+
+message Describe {
+    // @gotags: json:"resource_id"
+    string resource_id = 1;         //资源ID
+    // @gotags: json:"cpu" validate:"required"
+    int64 cpu = 2;              // 核数
+    // @gotags: json:"memory" validate:"required"
+    int64 memory = 3;           // 内存
+    // @gotags: json:"gpu_amount"
+    int64 gpu_amount = 4;       // GPU数量
+    // @gotags: json:"gpu_spec"
+    string gpu_spec = 5;        // GPU类型
+    // @gotags: json:"os_type"      // 操作系统类型，分为Windows和Linux
+    string os_type = 6;
+    // @gotags: json:"os_name"
+    string os_name = 7;               // 操作系统名称
+    // @gotags: json:"serial_number"
+    string serial_number = 8;            // 序列号
+    // @gotags: json:"image_id"
+    string image_id = 9;             // 镜像ID
+    // @gotags: json:"internet_max_bandwidth_out"
+    int64 internet_max_bandwidth_out = 10;           // 公网出带宽最大值，单位为 Mbps
+    // @gotags: json:"internet_max_bandwidth_in"
+    int64 internet_max_bandwidth_in = 11;            // 公网入带宽最大值，单位为 Mbps
+    // @gotags: json:"key_pair_name"
+    string key_pair_name = 12;                // 秘钥对名称
+    // @gotags: json:"security_groups"
+    string security_groups = 13;               // 安全组  采用逗号分隔
+}
+
+message Set {
+    // @gotags: json:"total"
+    int64 total = 1;
+    // @gotags: json:"items"
+    repeated Host items = 2;
+}
+
+/*
+
+*/

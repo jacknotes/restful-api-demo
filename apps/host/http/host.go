@@ -48,8 +48,8 @@ func (h *handler) QueryHost(w http.ResponseWriter, r *http.Request, _ httprouter
 
 	// 构建查询主机请求body值
 	req := &host.QueryHostRequest{
-		PageSize:   pageSize,
-		PageNumber: pageNumber,
+		PageSize:   int64(pageSize),
+		PageNumber: int64(pageNumber),
 		Keywords:   qs.Get("keywords"),
 	}
 
@@ -99,8 +99,8 @@ func (h *handler) UpdateHost(w http.ResponseWriter, r *http.Request, ps httprout
 		return
 	}
 	// 查询的是用户传入"/hosts/:id"中的id的值，并且将原Id赋值给req.Id
-	req.Id = ps.ByName("id")
-	req.ResourceID = req.Id
+	req.Resource.Id = ps.ByName("id")
+	req.Describe.ResourceId = req.Resource.Id
 
 	host, err := h.host.UpdateHost(r.Context(), req)
 	if err != nil {
@@ -122,8 +122,8 @@ func (h *handler) PatchHost(w http.ResponseWriter, r *http.Request, ps httproute
 		response.Failed(w, err)
 		return
 	}
-	req.Id = ps.ByName("id")
-	req.ResourceID = req.Id
+	req.Resource.Id = ps.ByName("id")
+	req.Describe.ResourceId = req.Resource.Id
 
 	host, err := h.host.UpdateHost(r.Context(), req)
 	if err != nil {

@@ -12,7 +12,7 @@ import (
 var API = &handler{}
 
 type handler struct {
-	host host.Service // 最顶层抽象的接口，传入的值为实现此接口的对象
+	host host.ServiceServer // 最顶层抽象的接口，传入的值为实现此接口的对象
 	log  logger.Logger
 }
 

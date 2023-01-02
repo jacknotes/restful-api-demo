@@ -18,7 +18,7 @@ func (i *impl) CreateHost(ctx context.Context, ins *host.Host) (*host.Host, erro
 	}
 
 	// 生成全局id
-	ins.Id = xid.New().String()
+	ins.Resource.Id = xid.New().String()
 	// 把数据入库到resouce、host表
 	// 一次需要往2个表录入数据，2个表必需同时存在数据或不存在数据，需要使用事务
 	var (
@@ -60,9 +60,9 @@ func (i *impl) CreateHost(ctx context.Context, ins *host.Host) (*host.Host, erro
 	defer resStmt.Close()
 
 	// 存储resource数据
-	_, err = resStmt.Exec(ins.Id, ins.Vendor, ins.Region, ins.Zone, ins.CreateAt, ins.ExpireAt, ins.Category, ins.Type, ins.InstanceId,
-		ins.Name, ins.Description, ins.Status, ins.UpdateAt, ins.SyncAt, ins.SyncAccount, ins.PublicIP,
-		ins.PrivateIP, ins.PayType, ins.ResourceHash, ins.DescribeHash,
+	_, err = resStmt.Exec(ins.Resource.Id, ins.Resource.Vendor, ins.Resource.Region, ins.Resource.Zone, ins.Resource.CreateAt, ins.Resource.ExpireAt, ins.Resource.Category, ins.Resource.Type, ins.Resource.InstanceId,
+		ins.Resource.Name, ins.Resource.Description, ins.Resource.Status, ins.Resource.UpdateAt, ins.Resource.SyncAt, ins.Resource.SyncAccount, ins.Resource.PublicIp,
+		ins.Resource.PrivateIp, ins.Resource.PayType, ins.ResourceHash, ins.DescribeHash,
 	)
 	if err != nil {
 		return nil, err
@@ -75,9 +75,9 @@ func (i *impl) CreateHost(ctx context.Context, ins *host.Host) (*host.Host, erro
 	}
 	defer descStmt.Close()
 
-	_, err = descStmt.Exec(ins.Id, ins.CPU, ins.Memory, ins.GPUAmount, ins.GPUSpec, ins.OSType, ins.OSName,
-		ins.SerialNumber, ins.ImageID, ins.InternetMaxBandwidthOut,
-		ins.InternetMaxBandwidthIn, ins.KeyPairName, ins.SecurityGroups,
+	_, err = descStmt.Exec(ins.Resource.Id, ins.Describe.Cpu, ins.Describe.Memory, ins.Describe.GpuAmount, ins.Describe.GpuSpec, ins.Describe.OsType, ins.Describe.OsName,
+		ins.Describe.SerialNumber, ins.Describe.ImageId, ins.Describe.InternetMaxBandwidthOut,
+		ins.Describe.InternetMaxBandwidthIn, ins.Describe.KeyPairName, ins.Describe.SecurityGroups,
 	)
 	if err != nil {
 		return nil, err
@@ -118,14 +118,14 @@ func (i *impl) QueryHost(ctx context.Context, req *host.QueryHostRequest) (*host
 		ins := host.NewDefaultHost()
 		// 扫描行数据到对应变量中
 		if err := rows.Scan(
-			&ins.Id, &ins.Vendor, &ins.Region, &ins.Zone, &ins.CreateAt, &ins.ExpireAt,
-			&ins.Category, &ins.Type, &ins.InstanceId, &ins.Name,
-			&ins.Description, &ins.Status, &ins.UpdateAt, &ins.SyncAt, &ins.SyncAccount,
-			&ins.PublicIP, &ins.PrivateIP, &ins.PayType, &ins.ResourceHash, &ins.DescribeHash,
-			&ins.Id, &ins.CPU,
-			&ins.Memory, &ins.GPUAmount, &ins.GPUSpec, &ins.OSType, &ins.OSName,
-			&ins.SerialNumber, &ins.ImageID, &ins.InternetMaxBandwidthOut, &ins.InternetMaxBandwidthIn,
-			&ins.KeyPairName, &ins.SecurityGroups,
+			&ins.Resource.Id, &ins.Resource.Vendor, &ins.Resource.Region, &ins.Resource.Zone, &ins.Resource.CreateAt, &ins.Resource.ExpireAt,
+			&ins.Resource.Category, &ins.Resource.Type, &ins.Resource.InstanceId, &ins.Resource.Name,
+			&ins.Resource.Description, &ins.Resource.Status, &ins.Resource.UpdateAt, &ins.Resource.SyncAt, &ins.Resource.SyncAccount,
+			&ins.Resource.PublicIp, &ins.Resource.PrivateIp, &ins.Resource.PayType, &ins.ResourceHash, &ins.DescribeHash,
+			&ins.Resource.Id, &ins.Describe.Cpu,
+			&ins.Describe.Memory, &ins.Describe.GpuAmount, &ins.Describe.GpuSpec, &ins.Describe.OsType, &ins.Describe.OsName,
+			&ins.Describe.SerialNumber, &ins.Describe.ImageId, &ins.Describe.InternetMaxBandwidthOut, &ins.Describe.InternetMaxBandwidthIn,
+			&ins.Describe.KeyPairName, &ins.Describe.SecurityGroups,
 		); err != nil {
 			return nil, err
 		}
@@ -166,14 +166,14 @@ func (i *impl) DescribeHost(ctx context.Context, req *host.DescribeHostRequest) 
 	ins := host.NewDefaultHost()
 	// 查询时传入填充问号的值，上面BuildQuery已经加入了id=?,name=? 格式
 	err = stmt.QueryRow(args...).Scan(
-		&ins.Id, &ins.Vendor, &ins.Region, &ins.Zone, &ins.CreateAt, &ins.ExpireAt,
-		&ins.Category, &ins.Type, &ins.InstanceId, &ins.Name,
-		&ins.Description, &ins.Status, &ins.UpdateAt, &ins.SyncAt, &ins.SyncAccount,
-		&ins.PublicIP, &ins.PrivateIP, &ins.PayType, &ins.ResourceHash, &ins.DescribeHash,
-		&ins.Id, &ins.CPU,
-		&ins.Memory, &ins.GPUAmount, &ins.GPUSpec, &ins.OSType, &ins.OSName,
-		&ins.SerialNumber, &ins.ImageID, &ins.InternetMaxBandwidthOut, &ins.InternetMaxBandwidthIn,
-		&ins.KeyPairName, &ins.SecurityGroups,
+		&ins.Resource.Id, &ins.Resource.Vendor, &ins.Resource.Region, &ins.Resource.Zone, &ins.Resource.CreateAt, &ins.Resource.ExpireAt,
+		&ins.Resource.Category, &ins.Resource.Type, &ins.Resource.InstanceId, &ins.Resource.Name,
+		&ins.Resource.Description, &ins.Resource.Status, &ins.Resource.UpdateAt, &ins.Resource.SyncAt, &ins.Resource.SyncAccount,
+		&ins.Resource.PublicIp, &ins.Resource.PrivateIp, &ins.Resource.PayType, &ins.ResourceHash, &ins.DescribeHash,
+		&ins.Resource.Id, &ins.Describe.Cpu,
+		&ins.Describe.Memory, &ins.Describe.GpuAmount, &ins.Describe.GpuSpec, &ins.Describe.OsType, &ins.Describe.OsName,
+		&ins.Describe.SerialNumber, &ins.Describe.ImageId, &ins.Describe.InternetMaxBandwidthOut, &ins.Describe.InternetMaxBandwidthIn,
+		&ins.Describe.KeyPairName, &ins.Describe.SecurityGroups,
 	)
 
 	if err != nil {
@@ -196,17 +196,17 @@ func (i *impl) UpdateHost(ctx context.Context, req *host.UpdateHostRequest) (*ho
 	)
 
 	// 查询请求中的resource.Id是否存在
-	ins, err := i.DescribeHost(ctx, host.NewDescribeHostRequestWithID(req.Id))
+	ins, err := i.DescribeHost(ctx, host.NewDescribeHostRequestWithID(req.Resource.Id))
 	if err != nil {
 		return nil, err
 	}
 
 	// 对象更新（PATCH/PUT）
 	switch req.UpdateMode {
-	case host.PUT:
+	case host.UpdateMode_PUT:
 		// 对象更新（全量更新），存在于内存中，此时并未更新数据库
 		ins.Update(req.Resource, req.Describe)
-	case host.PATCH:
+	case host.UpdateMode_PATCH:
 		// 对象打补丁（部分更新）
 		err := ins.Patch(req.Resource, req.Describe)
 		if err != nil {
@@ -251,7 +251,7 @@ func (i *impl) UpdateHost(ctx context.Context, req *host.UpdateHostRequest) (*ho
 	defer resStmt.Close()
 
 	// 将ins对象的属性更新到数据库中，这一步是真正改变数据库
-	_, err = resStmt.Exec(ins.Vendor, ins.Region, ins.Zone, ins.ExpireAt, ins.CreateAt, ins.UpdateAt, ins.Name, ins.Description, ins.Id)
+	_, err = resStmt.Exec(ins.Resource.Vendor, ins.Resource.Region, ins.Resource.Zone, ins.Resource.ExpireAt, ins.Resource.CreateAt, ins.Resource.UpdateAt, ins.Resource.Name, ins.Resource.Description, ins.Resource.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -264,13 +264,13 @@ func (i *impl) UpdateHost(ctx context.Context, req *host.UpdateHostRequest) (*ho
 	defer descStmt.Close()
 
 	// 将ins对象的属性更新到数据库中，这一步是真正改变数据库
-	_, err = descStmt.Exec(ins.CPU, ins.Memory, ins.ResourceID)
+	_, err = descStmt.Exec(ins.Describe.Cpu, ins.Describe.Memory, ins.Describe.ResourceId)
 	if err != nil {
 		return nil, err
 	}
 
 	// debug
-	i.log.Debugf("%s, %s, host.resource_id: %s, res.id: %s, %s", ins.CPU, ins.Memory, ins.ResourceID, ins.Id, ins.UpdateAt)
+	i.log.Debugf("%s, %s, host.resource_id: %s, res.id: %s, %s", ins.Describe.Cpu, ins.Describe.Memory, ins.Describe.ResourceId, ins.Resource.Id, ins.Resource.UpdateAt)
 	return ins, nil
 }
 
