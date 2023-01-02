@@ -16,6 +16,7 @@ import (
 
 	// 注册所有的app模块
 	// 所有的grpc app 都已经在app grpcApps map里面了
+	// 所有的http app 都已经在app httpApps map里面了
 	_ "github.com/jacknotes/restful-api-demo/apps/all"
 )
 
@@ -89,6 +90,7 @@ func (s *Service) Start() error {
 	go s.grpc.Start()
 
 	s.log.Infof("loaded grpc apps: %s", app.LoadedGrpcApp())
+	s.log.Infof("loaded http apps: %s", app.LoadedHttpApp())
 
 	return s.http.Start()
 }

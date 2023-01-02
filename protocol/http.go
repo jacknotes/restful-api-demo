@@ -6,17 +6,18 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/infraboard/mcube/app"
+	"github.com/infraboard/mcube/http/router"
+	"github.com/infraboard/mcube/http/router/httprouter"
 	"github.com/infraboard/mcube/logger"
 	"github.com/infraboard/mcube/logger/zap"
-	hostAPI "github.com/jacknotes/restful-api-demo/apps/host/http"
 	"github.com/jacknotes/restful-api-demo/conf"
-	"github.com/julienschmidt/httprouter"
 )
 
 // HTTPService http服务
 type HTTPService struct {
 	// router, root router，路由， method+path --> handler
-	r *httprouter.Router
+	r router.Router
 	// 日志
 	l logger.Logger
 	// c      *conf.Config
@@ -26,6 +27,8 @@ type HTTPService struct {
 
 func NewHTTPService() *HTTPService {
 	r := httprouter.New()
+	// 开启API URI路径查看
+	r.EnableAPIRoot()
 
 	return &HTTPService{
 		r: r,
@@ -54,8 +57,11 @@ func NewHTTPService() *HTTPService {
 func (s *HTTPService) Start() error {
 	// 装置子服务路由
 
-	hostAPI.API.Init() //此时初始化读取的h.host = app.Host = impl.Service
-	hostAPI.API.Registry(s.r)
+	// hostAPI.API.Init() //此时初始化读取的h.host = app.Host = impl.Service
+	// hostAPI.API.Registry(s.r)
+
+	// 完成http app的注册
+	app.LoadHttpApp("", s.r)
 
 	// 启动 HTTP服务
 	s.l.Infof("HTTP服务启动成功, 监听地址: %s", s.server.Addr)

@@ -4,13 +4,13 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/infraboard/mcube/http/context"
 	"github.com/infraboard/mcube/http/request"
 	"github.com/infraboard/mcube/http/response"
 	"github.com/jacknotes/restful-api-demo/apps/host"
-	"github.com/julienschmidt/httprouter"
 )
 
-func (h *handler) CreateHost(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func (h *handler) CreateHost(w http.ResponseWriter, r *http.Request) {
 	req := host.NewDefaultHost()
 	// 传入req初始化的结构体给request.GetDataFromRequest方法进行反序列化（JSON -> Struct）
 	if err := request.GetDataFromRequest(r, req); err != nil {
@@ -27,7 +27,7 @@ func (h *handler) CreateHost(w http.ResponseWriter, r *http.Request, _ httproute
 	response.Success(w, ins)
 }
 
-func (h *handler) QueryHost(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func (h *handler) QueryHost(w http.ResponseWriter, r *http.Request) {
 	var (
 		pageSize   = 20
 		pageNumber = 1
@@ -69,10 +69,11 @@ func (h *handler) QueryHost(w http.ResponseWriter, r *http.Request, _ httprouter
 
 // 查询主机详情
 // httprouter.Params保存着我们的路径查询参数
-func (h *handler) DescribeHost(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (h *handler) DescribeHost(w http.ResponseWriter, r *http.Request) {
+	ctx := context.GetContext(r)
 	req := &host.DescribeHostRequest{
 		// 从路径获取:id的值
-		Id: ps.ByName("id"),
+		Id: ctx.PS.ByName("id"),
 	}
 
 	// 调用业务层逻辑函数，查询主机列表
@@ -90,7 +91,8 @@ func (h *handler) DescribeHost(w http.ResponseWriter, r *http.Request, ps httpro
 }
 
 // 更新单个主机
-func (h *handler) UpdateHost(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (h *handler) UpdateHost(w http.ResponseWriter, r *http.Request) {
+	ctx := context.GetContext(r)
 	req := host.NewPutUpdateHostRequest()
 
 	// 传入req初始化的结构体给request.GetDataFromRequest方法进行反序列化（JSON -> Struct）
@@ -99,7 +101,7 @@ func (h *handler) UpdateHost(w http.ResponseWriter, r *http.Request, ps httprout
 		return
 	}
 	// 查询的是用户传入"/hosts/:id"中的id的值，并且将原Id赋值给req.Id
-	req.Resource.Id = ps.ByName("id")
+	req.Resource.Id = ctx.PS.ByName("id")
 	req.Describe.ResourceId = req.Resource.Id
 
 	host, err := h.host.UpdateHost(r.Context(), req)
@@ -114,7 +116,8 @@ func (h *handler) UpdateHost(w http.ResponseWriter, r *http.Request, ps httprout
 	response.Success(w, host)
 }
 
-func (h *handler) PatchHost(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (h *handler) PatchHost(w http.ResponseWriter, r *http.Request) {
+	ctx := context.GetContext(r)
 	req := host.NewPatchUpdateHostRequest()
 
 	// 传入req初始化的结构体给request.GetDataFromRequest方法进行反序列化（JSON -> Struct）
@@ -122,7 +125,7 @@ func (h *handler) PatchHost(w http.ResponseWriter, r *http.Request, ps httproute
 		response.Failed(w, err)
 		return
 	}
-	req.Resource.Id = ps.ByName("id")
+	req.Resource.Id = ctx.PS.ByName("id")
 	req.Describe.ResourceId = req.Resource.Id
 
 	host, err := h.host.UpdateHost(r.Context(), req)
@@ -138,9 +141,10 @@ func (h *handler) PatchHost(w http.ResponseWriter, r *http.Request, ps httproute
 }
 
 // 删除主机
-func (h *handler) DeleteHost(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (h *handler) DeleteHost(w http.ResponseWriter, r *http.Request) {
+	ctx := context.GetContext(r)
 	req := &host.DeleteHostRequest{
-		Id: ps.ByName("id"),
+		Id: ctx.PS.ByName("id"),
 	}
 
 	host, err := h.host.DeleteHost(r.Context(), req)
