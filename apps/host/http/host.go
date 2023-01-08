@@ -11,12 +11,25 @@ import (
 )
 
 func (h *handler) CreateHost(w http.ResponseWriter, r *http.Request) {
-	req := host.NewDefaultHost()
+	// 用于接收前端传递过来的数据，为了做数据格式转换
+	payload := &struct {
+		*host.Resource
+		*host.Describe
+	}{
+		Resource: &host.Resource{},
+		Describe: &host.Describe{},
+	}
+
 	// 传入req初始化的结构体给request.GetDataFromRequest方法进行反序列化（JSON -> Struct）
-	if err := request.GetDataFromRequest(r, req); err != nil {
+	if err := request.GetDataFromRequest(r, payload); err != nil {
 		response.Failed(w, err)
 		return
 	}
+
+	req := host.NewDefaultHost()
+	req.Resource = payload.Resource
+	req.Describe = payload.Describe
+
 	// 1. Context一定要传，如果用户中断了请求，你的后端逻辑也会跟着中断
 	// 2. req: 通过http协议传递进来
 	ins, err := h.host.CreateHost(r.Context(), req)

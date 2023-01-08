@@ -2,6 +2,8 @@
 name = "demo"
 host = "0.0.0.0"
 port = "8050"
+grpc_host = "0.0.0.0"
+grpc_port = "18050"
 key  = "this is your app key"
 
 [mysql]

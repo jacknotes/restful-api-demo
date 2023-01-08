@@ -45,8 +45,9 @@ install: dep  ## install grpc gen tools
 	@go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 	@go install github.com/favadi/protoc-go-inject-tag@latest
 
-gen: ## generate code
-	@protoc -I=. -I='/c/Program Files/Git/usr/local/include' --go_out=. --go_opt=module=${PKG} --go-grpc_out=. --go-grpc_opt=module=${PKG} apps/*/pb/*.proto
+gen: ## generate code # 对生成的protobuf go文件注入tag
+	@protoc -I=. -I='/usr/local/include' --go_out=. --go_opt=module=${PKG} --go-grpc_out=. --go-grpc_opt=module=${PKG} apps/*/pb/*.proto
+	@protoc-go-inject-tag -input="*apps/*/*.pb.go"	
 
 run: ## Run Develop server
 	@go run $(MAIN_FILE) start -f ${PKG_CONFIG}
