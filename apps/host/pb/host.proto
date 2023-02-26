@@ -69,7 +69,7 @@ message Host {
 message Resource {
     // @gotags: json:"id"
     string id = 1;      // 全局唯一Id
-    // @gotags: json:"vendor""
+    // @gotags: json:"vendor"
     Vendor vendor = 2;  // 厂商
     // @gotags: json:"region" validate:"required"
     string region = 3;  // 地域

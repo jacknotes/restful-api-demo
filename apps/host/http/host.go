@@ -32,6 +32,7 @@ func (h *handler) CreateHost(w http.ResponseWriter, r *http.Request) {
 
 	// 1. Context一定要传，如果用户中断了请求，你的后端逻辑也会跟着中断
 	// 2. req: 通过http协议传递进来
+	// 3. h.host通过Config()中h.host = app.GetGrpcApp(host.AppName).(host.ServiceServer)已经变成grpc对象Service
 	ins, err := h.host.CreateHost(r.Context(), req)
 	if err != nil {
 		response.Failed(w, err)
